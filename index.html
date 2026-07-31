@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>З Днем Народження, Мамусю Галю! ❤️✨</title>
+    <!-- Бібліотеки для конфетті та анімацій -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        :root {
+            --bg: #fff0f5;
+            --primary: #ff6b81;
+            --accent: #ff4757;
+            --text: #2f3542;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Фоновий канвас для анімованих пелюсток і сердечок */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Головний контейнер додатка */
+        .app-card {
+            width: 100%;
+            max-width: 480px;
+            min-height: 92vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            box-shadow: 0 20px 50px rgba(255, 71, 87, 0.3);
+            padding: 25px 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            margin: 10px;
+        }
+
+        /* Кнопка музики */
+        .music-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #ffffff;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+
+            .music-btn:active {
+                transform: scale(0.9);
+            }
+
+        /* Прогрес-бар */
+        .progress-bar {
+            display: flex;
+            gap: 3px;
+            margin-bottom: 15px;
+            margin-right: 50px;
+        }
+
+        .progress-step {
+            height: 6px;
+            flex: 1;
+            background: #ffd1dc;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .progress-step.active {
+                background: var(--accent);
+                box-shadow: 0 0 8px var(--accent);
+            }
+
+        /* Екрани */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+            .screen.active {
+                display: flex;
+                animation: fadeInUp 0.5s ease-out;
+            }
+
+            .screen h1 {
+                font-size: 1.8rem;
+                color: var(--accent);
+                margin-bottom: 10px;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            }
+
+            .screen h2 {
+                font-size: 1.3rem;
+                color: var(--primary);
+                margin-bottom: 15px;
+            }
+
+            .screen img {
+                width: 100%;
+                max-height: 340px;
+                object-fit: cover;
+                border-radius: 22px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                margin-bottom: 15px;
+                border: 3px solid #fff;
+            }
+
+        .caption {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            color: #444;
+            font-weight: 600;
+            background: #fff0f5;
+            padding: 14px 16px;
+            border-radius: 18px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px dashed #ffb6c1;
+        }
+
+        /* Навігація */
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1;
+            background: linear-gradient(45deg, #ff4757, #ff6b81);
+            color: white;
+            padding: 15px;
+            border-radius: 30px;
+            border: none;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255, 71, 87, 0.35);
+            transition: all 0.2s;
+        }
+
+            .btn:active {
+                transform: scale(0.95);
+            }
+
+        .btn-secondary {
+            background: #f1f2f6;
+            color: #57606f;
+            box-shadow: none;
+        }
+
+        /* Гра-Рулетка Компліментів */
+        .roulette-box {
+            background: #fff;
+            border: 2px solid var(--primary);
+            padding: 20px;
+            border-radius: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            margin: 15px 0;
+        }
+
+        .roulette-res {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Кнопка-втікач */
+        #runawayBtn {
+            position: absolute;
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Анімований фоновий канвас -->
+    <canvas id="particles-canvas"></canvas>
+
+    <div class="app-card">
+
+        <!-- Музичний супровід -->
+        <button class="music-btn" onclick="toggleMusic()" title="Включити музику">🎵</button>
+        <audio id="bgMusic" loop src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=happy-birthday-112003.mp3"></audio>
+
+        <div class="progress-bar" id="progressBar"></div>
+
+        <!-- ЕКРАН 0: Авторизація + Втікач -->
+        <div class="screen active" id="screen-0">
+            <h1 style="margin-top: 30px;">Вхід у VIP-Систему 👑</h1>
+            <p style="font-size: 1.1rem; margin: 15px 0;">Для доступу пройдіть сканування на найкращу маму у світі!</p>
+
+            <div class="caption" style="margin: 20px 0;">
+                Підтвердіть: ви мама Галя? 🤔
+            </div>
+
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 12px; position: relative; height: 130px;">
+                <button class="btn" onclick="changeStep(1)">Так, це я! ✨</button>
+                <button class="btn btn-secondary" id="runawayBtn" onmouseover="runAway()" onclick="runAway()">Я хтось інший 🙈</button>
+            </div>
+        </div>
+
+        <!-- ЕКРАН 1: Перше фото Сюрприз -->
+        <div class="screen" id="screen-1">
+            <h2>Сканування пройдено! 100% Краси 😍</h2>
+            <img src="https://lh3.googleusercontent.com/d/11yDmlBRb_-MISbqfO7wTiCPwcFIujE0X" alt="Найгарніша мама">
+            <div class="caption">
+                Система визначила: перед нами найгарніша мама у світі! ✨💐
+            </div>
+        </div>
+
+        <!-- ЕКРАН 2: Спогад 1 -->
+        <div class="screen" id="screen-2">
+            <h2>Спогад №1 💬</h2>
+            <img src="https://lh3.googleusercontent.com/d/1KGTif8LSwcfx8P6ljHAOIF45-R1UN-y0" alt="На порозі">
+            <div class="caption">
+                Люблю з тобою сидіти на порозі та розмовляти про все на світі, а потім по незрозумілим причинам посваритись)
+            </div>
+        </div>
+
+        <!-- ЕКРАН 3: Спогад 2 -->
+        <div class="screen" id="screen-3">
+            <h2>Спогад №2 ✨</h2>
+            <img src="https://lh3.googleusercontent.com/d/1veyy2Xhc_26AUVcsgjZbNj2DiJjpfCL2" alt="Красуня">
+            <div class="caption">
+                Ти в мене найгарніша, я тебе люблю ❤️
+            </div>
+        </div>
+
+        <!-- ЕКРАН 4: Рулетка Настрою (ГРА) -->
+        <div class="screen" id="screen-4">
+            <h2>Генератор Статусу Мами 🎰</h2>
+            <p>Тисни кнопку та дізнайся свій супер-статус на сьогодні!</p>
+
+            <div class="roulette-box">
+                <div class="roulette-res" id="rouletteText">Натисни кнопку нижче! 👇</div>
+            </div>
+
+            <button class="btn" style="background: linear-gradient(45deg, #a55eea, #4b7bec);" onclick="spinRoulette()">Крутити рулетку! 🎲</button>
+        </div>
+
+        <!-- ЕКРАН 5: Спогад 3 -->
+        <div class="screen" id="screen-5">
+            <h2>Спогад №3 🚶‍♀️</h2>
+            <img src="https://lh3.googleusercontent.com/d/1MqYDPpywY1j1jfmH7m9BXtkqhNnQpYWO" alt="На прогулянці!">
+            <div class="caption">
+                Мені подобається гуляти разом з тобою 🌸
+            </div>
+        </div>
+
+        <!-- ЕКРАН 6: Спогад 4 -->
+        <div class="screen" id="screen-6">
+            <h2>Спогад №4 🏎️</h2>
+            <img src="https://lh3.googleusercontent.com/d/1-_NxXZETC1B7GKyHtcddAe6EnUhvcMh8" alt="Шумахер">
+            <div class="caption" style="font-size: 1.2rem; color: #ff4757;">
+                Формула-1 у заздрості! Шумахер за кермом 💨
+            </div>
+        </div>
+
+        <!-- ЕКРАН 7: Спогад 5 -->
+        <div class="screen" id="screen-7">
+            <h2>Спогад №5 ❄️</h2>
+            <img src="https://lh3.googleusercontent.com/d/1EUFye-GOulQsTdgDBD8DzakrXk9lL0wD" alt="Зимове фото">
+            <div class="caption">
+                Ти дуже добра та чуйна ✨
+            </div>
+        </div>
+
+        <!-- ЕКРАН 8: Спогад 6 -->
+        <div class="screen" id="screen-8">
+            <h2>Спогад №6 💐</h2>
+            <img src="https://lh3.googleusercontent.com/d/1sMojrQYMObtsOf9RcePOwYdCy9CANk0p" alt="У гостях">
+            <div class="caption">
+                А ще мені дуже подобається ходити з тобою в гості, коли я дивлюсь на тебе збоку я радію і пишаюсь що ти моя мама ❤️
+            </div>
+        </div>
+
+        <!-- ЕКРАН 9: Спогад 7 -->
+        <div class="screen" id="screen-9">
+            <h2>Спогад №7 💕</h2>
+            <img src="https://lh3.googleusercontent.com/d/1QoEBrRsHvhe6GtQZ-BLJ194xa6sETKQp" alt="Дякую">
+            <div class="caption">
+                Мамо, дякую за те що ти в мене є 🎉
+            </div>
+        </div>
+
+        <!-- ЕКРАН 10: Торт + Феєрверк -->
+        <div class="screen" id="screen-10">
+            <h2>Загадуй Бажання! 🎂</h2>
+            <p>Клікни на торт, щоб задути свічку та підірвати святковий фейєрверк!</p>
+
+            <div style="font-size: 5rem; cursor: pointer; margin: 15px 0;" id="cakeBtn" onclick="explodeCake()">🧁</div>
+
+            <div class="caption" id="cakeWish" style="display: none; color: #ff4757; font-weight: bold;">
+                Нехай усі твої найпотаємніші мрії та бажання обов'язково здійснюються! ✨🎉
+            </div>
+        </div>
+
+        <!-- ЕКРАН 11: Фінал і Сертифікат -->
+        <div class="screen" id="screen-11">
+            <h1>З Днем Народження! 🎂</h1>
+            <img src="https://lh3.googleusercontent.com/d/1Ae6avQYoOKtKtahMmpU5_PlwQ_RquFAQ" alt="Котик з квітами" style="max-height: 230px;">
+
+            <div class="caption" style="background: #fff; border: 2px solid #ff4757;">
+                <h3 style="margin: 0; color: #ff4757;">🏆 ОФІЦІЙНИЙ СЕРТИФІКАТ</h3>
+                <p style="margin: 5px 0; font-size: 0.9rem;">Виданий <b>Мамі Галі</b>:</p>
+                <p style="font-weight: bold; color: #d63384; font-size: 1.05rem; margin: 0;">«Найкраща, найродніша та найвеселіша Мама у Всесвіті!» ❤️</p>
+            </div>
+        </div>
+
+        <!-- Кнопки навігації -->
+        <div class="nav-buttons" id="navGroup">
+            <button class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">⬅️ Назад</button>
+            <button class="btn" id="nextBtn" onclick="changeStep(1)">Далі ➡️</button>
+        </div>
+
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalSteps = 12;
+
+        // Створення прогрес-бару
+        const progressBar = document.getElementById('progressBar');
+        for (let i = 0; i < totalSteps; i++) {
+            const stepDot = document.createElement('div');
+            stepDot.classList.add('progress-step');
+            if (i === 0) stepDot.classList.add('active');
+            stepDot.id = `dot-${i}`;
+            progressBar.appendChild(stepDot);
+        }
+
+        // Вмикання музики
+        let isPlaying = false;
+        function toggleMusic() {
+            const music = document.getElementById('bgMusic');
+            if (isPlaying) {
+                music.pause();
+            } else {
+                music.play();
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // Кнопка-втікач
+        function runAway() {
+            const btn = document.getElementById('runawayBtn');
+            const x = (Math.random() - 0.5) * 200;
+            const y = (Math.random() - 0.5) * 120;
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+
+        // Рулетка компліментів
+        const statuses = [
+            "👑 Королева Позитиву",
+            "🏎️ Найшвидший Водій у Світі",
+            "🍲 Майстер Найсмачніших страв",
+            "🌟 Головна Красуня Всесвіту",
+            "💖 Мама з золотим серцем"
+        ];
+        function spinRoulette() {
+            const text = document.getElementById('rouletteText');
+            let count = 0;
+            const interval = setInterval(() => {
+                text.innerText = statuses[Math.floor(Math.random() * statuses.length)];
+                count++;
+                if (count > 10) {
+                    clearInterval(interval);
+                    confetti({ particleCount: 50, spread: 60 });
+                }
+            }, 100);
+        }
+
+        // Вибух торта
+        function explodeCake() {
+            document.getElementById('cakeBtn').innerText = '🎉';
+            document.getElementById('cakeWish').style.display = 'block';
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+        }
+
+        // Навігація між екранами
+        function changeStep(direction) {
+            document.getElementById(`screen-${currentStep}`).classList.remove('active');
+            document.getElementById(`dot-${currentStep}`).classList.remove('active');
+
+            currentStep += direction;
+
+            document.getElementById(`screen-${currentStep}`).classList.add('active');
+
+            for (let i = 0; i <= currentStep; i++) {
+                document.getElementById(`dot-${i}`).classList.add('active');
+            }
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const navGroup = document.getElementById('navGroup');
+
+            navGroup.style.display = (currentStep === 0) ? 'none' : 'flex';
+            prevBtn.style.display = (currentStep > 1) ? 'block' : 'none';
+
+            if (currentStep === totalSteps - 1) {
+                nextBtn.innerText = 'Міцно обійняти! ❤️';
+                nextBtn.onclick = function () {
+                    confetti({ particleCount: 200, spread: 120 });
+                    alert("Біжу обіймати свою любу маму Галю! 🥳🎉");
+                };
+            } else {
+                nextBtn.innerText = 'Далі ➡️';
+                nextBtn.onclick = function () { changeStep(1); };
+            }
+        }
+
+        document.getElementById('navGroup').style.display = 'none';
+
+        // Анімація падаючих пелюсток на Canvas
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = Array.from({ length: 25 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 15 + 10,
+            speed: Math.random() * 1.5 + 0.5,
+            string: ['🌸', '❤️', '💖', '✨'][Math.floor(Math.random() * 4)]
+        }));
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                ctx.font = `${p.size}px serif`;
+                ctx.fillText(p.string, p.x, p.y);
+                p.y += p.speed;
+                if (p.y > canvas.height) p.y = -20;
+            });
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+    </script>
+</body>
+</html>
